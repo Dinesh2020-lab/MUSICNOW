@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Music Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #041e1ff0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #008b6f88;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #476d1e98;
+            border-radius: 4px;
+        }
+        .song-list, .recent-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px 0;
+        }
+        .song-item, .recent-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #25a81b;
+        }
+        .song-title {
+            flex: 1;
+        }
+        .play-btn {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+        .play-btn:active {
+            background: #0056b3;
+        }
+        .recent-section {
+            margin-bottom: 24px;
+        }
+        audio {
+            width: 100%;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Music Web App</h1>
+        <input type="text" id="searchInput" class="search-bar" placeholder="Search songs...">
+        
+        <div class="recent-section">
+            <h3>Recently Played</h3>
+            <ul id="recentList" class="recent-list"></ul>
+        </div>
+        
+        <h3>All Songs</h3>
+        <ul id="songList" class="song-list"></ul>
+        <audio id="audioPlayer" controls></audio>
+    </div>
+    <script>
+        // Sample songs (replace src with your own mp3 links)
+        const songs = [
+            { title: "Sunrise Melody", artist: "Ava Lee", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { title: "Ocean Drive", artist: "Liam Smith", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { title: "Nightfall", artist: "Mia Chen", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { title: "Dreamscape", artist: "Noah Kim", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { title: "Starlight", artist: "Emma Brown", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+            { title: "Echoes", artist: "Oliver Jones", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+            { title: "Wanderlust", artist: "Sophia Davis", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+            { title: "Pulse", artist: "Lucas Wilson", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+            { title: "Serenity", artist: "Isabella Martinez", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+            { title: "Momentum", artist: "Ethan Clark", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
+        ];
+
+        let recentPlayed = [];
+
+        const songListEl = document.getElementById('songList');
+        const recentListEl = document.getElementById('recentList');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderSongs(list) {
+            songListEl.innerHTML = '';
+            list.forEach((song, idx) => {
+                const li = document.createElement('li');
+                li.className = 'song-item';
+                li.innerHTML = `
+                    <span class="song-title">${song.title} <small>by ${song.artist}</small></span>
+                    <button class="play-btn" data-idx="${idx}">Play</button>
+                `;
+                songListEl.appendChild(li);
+            });
+        }
+
+        function renderRecent() {
+            recentListEl.innerHTML = '';
+            recentPlayed.slice(0,5).forEach(song => {
+                const li = document.createElement('li');
+                li.className = 'recent-item';
+                li.innerHTML = `<span>${song.title} <small>by ${song.artist}</small></span>`;
+                recentListEl.appendChild(li);
+            });
+        }
+
+        function playSong(idx) {
+            const song = songs[idx];
+            audioPlayer.src = song.src;
+            audioPlayer.play();
+            // Add to recent played, avoid duplicates
+            recentPlayed = recentPlayed.filter(s => s.title !== song.title);
+            recentPlayed.unshift(song);
+            renderRecent();
+        }
+
+        songListEl.addEventListener('click', function(e) {
+            if (e.target.classList.contains('play-btn')) {
+                const idx = e.target.getAttribute('data-idx');
+                playSong(idx);
+            }
+        });
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const filtered = songs.filter(song =>
+                song.title.toLowerCase().includes(query) ||
+                song.artist.toLowerCase().includes(query)
+            );
+            renderSongs(filtered);
+        });
+
+        // Initial render
+        renderSongs(songs);
+        renderRecent();
+    </script>
+</body>
+</html>
